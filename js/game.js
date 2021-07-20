@@ -1,94 +1,181 @@
-//create a new scene
-let gameScene = new Phaser.Scene('Game');
+var config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 600,
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { y: 200 }
+        }
+    },
+    scene: {
+        preload: preload,
+        create: create
+    }
+};
+let rocks;
 
+game = new Phaser.Game(config);
 
-// load assets
-gameScene.preload = function() {
-
+function preload(){
     // Load images
     this.load.image('background','assets/sky.png');
-    this.load.image('player','assets/player.png');
+    this.load.image('player','assets/woof.png', 32, 32);
     this.load.image('platform','assets/platform.png');
     this.load.image('rock','assets/rock.png');
-};
+    this.load.image('ladder','assets/ladder.png');
 
-// called once after the preload ends
-gameScene.create = function(){
+}
 
-    // create background sprite
+function create(){
+   console.log(Phaser.Physics.Arcade.Sprite)
+
     let game_width = this.sys.game.config.width;
     let game_height = this.sys.game.config.height;
 
     this.bg = this.add.sprite(game_width/2,game_height/2,'background');
 
+
     // create the player sprite
-    this.player = this.add.sprite(80,580,'player');
-    // player.depth = 1;
-    this.player.setScale(1,1); //changing the size of a sprite
+    player = this.physics.add.sprite(80,580,'player');
+    console.log(player)
+    // game.physics.arcade.enable(player);
+    player.body.bounce.y = 0.2;
+    player.body.gravity.y = 800;
+    player.body.collideWorldBounds = true;
 
-    //flip
-    // this.player.flipX = true;
-    // this.player.flipY = true;
+    // player.animations.add('left',[0, 1], 10, true);
+    // player.animations.add('right',[2, 3], 10, true);
 
-    // rotating a sprite
-    // this.player.angle = 45;
-    // this.player.setAngle(45);
-    // this.player.setOrigin(0,0) // rotating about a specified point
+    platforms = this.add.group();
+    platforms.enableBody = true;
 
-    // using radians
-    // this.player.rotation = Math.PI /4;
-    // this.player.setRotation(Math.PI / 4);
+    let ground = platforms.create(0, 600, 'platform');
+    ground.scaleX = 4;
+    ground.scaleY = 0.5;
+    ground.angle = -1;
 
-    // create a platform sprite
-    this.platform = this.add.sprite(400, 580, 'platform');
-    this.platform.setScale(2,0.5);
+    let platform = platforms.create(0, 500, 'platform');
+    platform.scaleX = 3.5;
+    platform.scaleY = 0.5;
+    platform.angle = 2;
 
-    this.platform1 = this.add.sprite(300, 500, 'platform');
-    this.platform1.setScale(2,0.5);
-    this.platform1.angle = 2;
+    platform = platforms.create(500, 400, 'platform');
+    platform.scaleX = 2;
+    platform.scaleY = 0.5;
+    platform.angle = -2;
 
-    this.platform2 = this.add.sprite(500, 400, 'platform');
-    this.platform2.setScale(2,0.5);
-    this.platform2.angle = -1;
+    platform = platforms.create(300, 300, 'platform');
+    platform.scaleX = 2;
+    platform.scaleY = 0.5;
+    platform.angle = 2;
 
-    this.platform3 = this.add.sprite(300, 300, 'platform');
-    this.platform3.setScale(2,0.5);
-    this.platform3.angle = 2;
+    platform = platforms.create(500, 200, 'platform');
+    platform.scaleX = 2;
+    platform.scaleY = 0.5;
+    platform.angle = -2;
 
-    this.platform4 = this.add.sprite(500, 200, 'platform');
-    this.platform4.setScale(2,0.5);
-    this.platform4.angle = -1;
+    platform = platforms.create(300, 100, 'platform');
+    platform.scaleX = 2;
+    platform.scaleY = 0.5;
+    platform.angle = 2;
 
-    this.platform5 = this.add.sprite(300, 100, 'platform');
-    this.platform5.setScale(2,0.5);
-    this.platform5.angle = 2;
+    let ladders = this.add.group();
+    ladders.enableBody = true;
 
-    // create the rotating rock sprite
-    this.rock = this.add.sprite(50,50,'rock');
-    this.rock.setScale(0.2,0.2);
+    // 1st column
+    ladder = ladders.create(650, 555, 'ladder');
+    ladder.scaleX = 0.25;
+    ladder.scaleY = 0.27;
 
-};
+    // 2nd column
+    ladder = ladders.create(150, 450, 'ladder');
+    ladder.scaleX = 0.25;
+    ladder.scaleY = 0.34;
 
-//This update function is called 60 times per second
-gameScene.update = function(){
+    ladder = ladders.create(450, 454, 'ladder');
+    ladder.scaleX = 0.25;
+    ladder.scaleY = 0.4;
 
-    this.rock.x += 1;
-    // this.player.x += 1;
-    // this.player.rotation += 1;
+    // 3rd column
+    ladder = ladders.create(650, 350, 'ladder');
+    ladder.scaleX = 0.25;
+    ladder.scaleY = 0.34;
 
-    // make a sprite to grow in size over time with a limit
-    // if (this.player.scaleX < 2) {
-    //     this.player.scaleX += 0.01;
-    // }
+    ladder = ladders.create(400, 353, 'ladder');
+    ladder.scaleX = 0.25;
+    ladder.scaleY = 0.38;
+
+    //4th column
+    ladder = ladders.create(150, 250, 'ladder');
+    ladder.scaleX = 0.25;
+    ladder.scaleY = 0.34;
+
+    ladder = ladders.create(350, 253, 'ladder');
+    ladder.scaleX = 0.25;
+    ladder.scaleY = 0.38;
+
+    // 5th column
+    ladder = ladders.create(650, 155, 'ladder');
+    ladder.scaleX = 0.25;
+    ladder.scaleY = 0.34;
+
+    let rocks = this.add.group();
+    rocks.enableBody = true;
+    this.physics.world.enable(rocks);
+    console.log(rocks)
+
+    for (var i = 0; i < 12 ; i++) {
+        let rock = rocks.create(50, 50,'rock');
+        rock.scaleX = 0.25;
+        rock.scaleY = 0.25;
+        console.log(rock.body);
+        rock.setVelocity(100, 200);
+        // rock.body.gravity.y = 1000;
+    }
+
+    // create rock sprite
+    // this.rock = this.physics.add.sprite(50,50,'rock');
+    // this.rock.setScale(0.2,0.2);
+    // this.rock.setCollideWorldBounds(true);
+    // this.rock.body.setGravityY(300);
+    // this.physics.add.collider(this.rock, this.platform);
+
+    scoreText = this.add.text(16,16, '', {fontSize: '32px', fill: '#000'});
+    cursors = this.input.keyboard.createCursorKeys();
 }
 
-//set the configuration of the game
-let config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    scene: gameScene
-};
+function update(){
+    this.physics.arcade.collide(this.rock, platforms);
+    this.physics.arcade.collide(this.player, platforms);
+    this.physics.arcade.overlap(this.player, rocks, hitRock, null, this);
 
-// create a new game, pass the configuration
-let game = new Phaser.Game(config);
+    this.player.velocity.x = 0;
+    if (cursors.left.isDown)
+    {
+        player.body.velocity.x = -150;
+        player.animations.play('left');
+    }
+    else if (cursors.right.isDown)
+    {
+        player.body.velocity.x = 150;
+        player.animations.play(right);
+    }
+    if (cursors.up.isDown && player.body.touching.down)
+    {
+        player.body.velocity.y = -420
+    }
+
+    if (score === 120)
+    {
+        alert('You win')
+        score = 0
+    }
+}
+
+function hitRock(player, rock) {
+    rock.kill();
+
+    score += 10;
+    scoreText = 'Score ' + score;
+}
