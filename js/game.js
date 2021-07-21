@@ -10,7 +10,8 @@ var config = {
     },
     scene: {
         preload: preload,
-        create: create
+        create: create,
+        update, update
     }
 };
 let rocks;
@@ -20,162 +21,200 @@ game = new Phaser.Game(config);
 function preload(){
     // Load images
     this.load.image('background','assets/sky.png');
-    this.load.image('player','assets/woof.png', 32, 32);
     this.load.image('platform','assets/platform.png');
     this.load.image('rock','assets/rock.png');
     this.load.image('ladder','assets/ladder.png');
+    this.load.spritesheet('player', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
 
 }
 
 function create(){
-   console.log(Phaser.Physics.Arcade.Sprite)
-
     let game_width = this.sys.game.config.width;
     let game_height = this.sys.game.config.height;
 
     this.bg = this.add.sprite(game_width/2,game_height/2,'background');
 
+    // platforms = this.physics.add.sprite(0, 600, 'platform');
+    // platforms.scaleX = 3.5;
+    // platforms.scaleY = 0.5;
+    // platforms.angle = 2;
+    // platforms.setCollideWorldBounds = true;
 
-    // create the player sprite
-    player = this.physics.add.sprite(80,580,'player');
-    console.log(player)
-    // game.physics.arcade.enable(player);
-    player.body.bounce.y = 0.2;
-    player.body.gravity.y = 800;
-    player.body.collideWorldBounds = true;
+    platforms = this.physics.add.staticGroup();
 
-    // player.animations.add('left',[0, 1], 10, true);
-    // player.animations.add('right',[2, 3], 10, true);
+    // platforms.create(400, 568, 'platform').setScale(2,0.5).refreshBody();
+    platform = platforms.create(0, 600, 'platform').setScale(4,0.5).refreshBody();
+    // platform.angle = -1;
 
-    platforms = this.add.group();
-    platforms.enableBody = true;
+    platform = platforms.create(0, 500, 'platform').setScale(3.5,0.5).refreshBody();
+    // platform.angle = 2;
 
-    let ground = platforms.create(0, 600, 'platform');
-    ground.scaleX = 4;
-    ground.scaleY = 0.5;
-    ground.angle = -1;
+    platform = platforms.create(500, 400, 'platform').setScale(2,0.5).refreshBody();
+    // platform.angle = -2;
 
-    let platform = platforms.create(0, 500, 'platform');
-    platform.scaleX = 3.5;
-    platform.scaleY = 0.5;
-    platform.angle = 2;
+    platform = platforms.create(300, 300, 'platform').setScale(2,0.5).refreshBody();
+    // platform.angle = 2;
 
-    platform = platforms.create(500, 400, 'platform');
-    platform.scaleX = 2;
-    platform.scaleY = 0.5;
-    platform.angle = -2;
+    platform = platforms.create(500, 200, 'platform').setScale(2,0.5).refreshBody();
+    // platform.angle = -2;
 
-    platform = platforms.create(300, 300, 'platform');
-    platform.scaleX = 2;
-    platform.scaleY = 0.5;
-    platform.angle = 2;
+    platform = platforms.create(300, 100, 'platform').setScale(2,0.5).refreshBody();
+    // platform.angle = 2;
 
-    platform = platforms.create(500, 200, 'platform');
-    platform.scaleX = 2;
-    platform.scaleY = 0.5;
-    platform.angle = -2;
-
-    platform = platforms.create(300, 100, 'platform');
-    platform.scaleX = 2;
-    platform.scaleY = 0.5;
-    platform.angle = 2;
-
-    let ladders = this.add.group();
-    ladders.enableBody = true;
+    ladders = this.physics.add.staticGroup();
+    // ladders.enableBody = true;
 
     // 1st column
-    ladder = ladders.create(650, 555, 'ladder');
-    ladder.scaleX = 0.25;
-    ladder.scaleY = 0.27;
+    ladders.create(650, 555, 'ladder').setScale(0.25,0.27).refreshBody();
 
     // 2nd column
-    ladder = ladders.create(150, 450, 'ladder');
-    ladder.scaleX = 0.25;
-    ladder.scaleY = 0.34;
+    ladders.create(150, 450, 'ladder').setScale(0.25,0.34);
 
-    ladder = ladders.create(450, 454, 'ladder');
-    ladder.scaleX = 0.25;
-    ladder.scaleY = 0.4;
+    ladders.create(450, 454, 'ladder').setScale(0.25,0.4);
 
     // 3rd column
-    ladder = ladders.create(650, 350, 'ladder');
-    ladder.scaleX = 0.25;
-    ladder.scaleY = 0.34;
+    ladders.create(650, 350, 'ladder').setScale(0.25,0.34);
 
-    ladder = ladders.create(400, 353, 'ladder');
-    ladder.scaleX = 0.25;
-    ladder.scaleY = 0.38;
+    ladders.create(400, 353, 'ladder').setScale(0.25,0.38);
 
     //4th column
-    ladder = ladders.create(150, 250, 'ladder');
-    ladder.scaleX = 0.25;
-    ladder.scaleY = 0.34;
+    ladders.create(150, 250, 'ladder').setScale(0.25,0.34);
 
-    ladder = ladders.create(350, 253, 'ladder');
-    ladder.scaleX = 0.25;
-    ladder.scaleY = 0.38;
+    ladders.create(350, 253, 'ladder').setScale(0.25,0.38);
 
     // 5th column
-    ladder = ladders.create(650, 155, 'ladder');
-    ladder.scaleX = 0.25;
-    ladder.scaleY = 0.34;
+    ladders.create(650, 155, 'ladder').setScale(0.25,0.34);
 
-    let rocks = this.add.group();
-    rocks.enableBody = true;
-    this.physics.world.enable(rocks);
-    console.log(rocks)
 
-    for (var i = 0; i < 12 ; i++) {
-        let rock = rocks.create(50, 50,'rock');
-        rock.scaleX = 0.25;
-        rock.scaleY = 0.25;
-        console.log(rock.body);
-        rock.setVelocity(100, 200);
-        // rock.body.gravity.y = 1000;
-    }
+    // create the player sprite
+    player = this.physics.add.sprite(80,400,'player');
+    player.setBounce(0.2);
+    player.setCollideWorldBounds(true);
+
+    this.anims.create({
+        key: 'left',
+        frames: this.anims.generateFrameNumbers('player', { start: 0, end: 3 }),
+        frameRate: 10,
+        repeat: -1
+    });
+
+    this.anims.create({
+        key: 'turn',
+        frames: [ { key: 'player', frame: 4 } ],
+        frameRate: 20
+    });
+
+    this.anims.create({
+        key: 'right',
+        frames: this.anims.generateFrameNumbers('player', { start: 5, end: 8 }),
+        frameRate: 10,
+        repeat: -1
+    });
 
     // create rock sprite
-    // this.rock = this.physics.add.sprite(50,50,'rock');
-    // this.rock.setScale(0.2,0.2);
-    // this.rock.setCollideWorldBounds(true);
-    // this.rock.body.setGravityY(300);
-    // this.physics.add.collider(this.rock, this.platform);
+    rock = this.physics.add.sprite(50, 50,'rock').setScale(0.15, 0.15);
+    rock.setCollideWorldBounds(true);
+    rock.body.setGravityY(100);
+    rock.body.setVelocity(80, 200)
+    rock.setBounce(0.5, 0.5);
 
-    scoreText = this.add.text(16,16, '', {fontSize: '32px', fill: '#000'});
+    score = 0;
+    scoreText = this.add.text(16,16,'Score: ' + score, {fontSize: '32px', fill: '#000'});
+    status_text = this.add.text(300,300, '' , {fontSize: '50px', fill: '#FF0000'});
     cursors = this.input.keyboard.createCursorKeys();
 }
 
 function update(){
-    this.physics.arcade.collide(this.rock, platforms);
-    this.physics.arcade.collide(this.player, platforms);
-    this.physics.arcade.overlap(this.player, rocks, hitRock, null, this);
+    // console.log('update function running');
+    // this.physics.add.collider(rock, platforms);
+    // this.physics.add.collider(player, platforms);
+    this.physics.add.collider(player, platforms,null ,checkUp.bind(this));
+    // this.physics.add.overlap(player, rock,null ,overlap_rock, null, this);
+    this.physics.add.collider(rock, platforms);
+    this.physics.add.collider(player, rock, hitRock, null, this);
+    this.physics.add.overlap(player, ladders);
+    // rock.angle += 0.5;
+    // this.player.velocity.x = 0;
 
-    this.player.velocity.x = 0;
+    function checkLadder()
+    {
+        this.onLadder=false;
+        ladders.children.iterate(function(child)
+        {
+            if (!child.body.touching.none)
+            {
+                this.onLadder=true;
+            }
+        }.bind(this));
+
+    }
+
+
+    function checkUp(){
+        if (this.onLadder==true && player.velocity.y < 0)
+        {
+            return false
+        }
+    }
     if (cursors.left.isDown)
     {
-        player.body.velocity.x = -150;
-        player.animations.play('left');
+        player.setVelocityX(-160);
+
+        player.anims.play('left', true);
     }
     else if (cursors.right.isDown)
     {
-        player.body.velocity.x = 150;
-        player.animations.play(right);
+        player.setVelocityX(160);
+
+        player.anims.play('right', true);
     }
-    if (cursors.up.isDown && player.body.touching.down)
+    else
     {
-        player.body.velocity.y = -420
+        player.setVelocityX(0);
+
+        player.anims.play('turn');
     }
 
-    if (score === 120)
+    if (cursors.up.isDown && player.body.touching.down && player.body.onFloor())
     {
-        alert('You win')
-        score = 0
+        player.setVelocityY(-200);
+        player.canDoubleJump = false;
     }
+
+
+    if (cursors.up.isDown)
+    {
+        checkLadder();
+        if (this.onLadder==true)
+        {
+            player.setVelocityY(-50);
+        }
+    }
+
 }
 
-function hitRock(player, rock) {
-    rock.kill();
+//     function overlap_rock (player, rock)
+// {
+//     rock.disableBody(true, true);
+//     score += 10;
+//     scoreText.setText('Score: ' + score);
+// }
 
-    score += 10;
-    scoreText = 'Score ' + score;
+function hitRock (player, rock)
+{
+    this.physics.pause();
+
+    player.setTint(0xff0000);
+
+    player.anims.play('turn');
+
+    status_text.setText('You lose');
+
+    gameOver = true;
 }
+
+    // setTimeout(rock_init()
+    // {
+
+    // }, 2000 );
+    // // rock_init();
