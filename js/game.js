@@ -24,6 +24,8 @@ function preload(){
     this.load.image('platform','assets/platform.png');
     this.load.image('rock','assets/rock.png');
     this.load.image('ladder','assets/ladder.png');
+    this.load.image('diamond','assets/diamond.png');
+    this.load.image('invisible','assets/invisible.PNG');
     this.load.spritesheet('player', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
 
 }
@@ -34,16 +36,15 @@ function create(){
 
     this.bg = this.add.sprite(game_width/2,game_height/2,'background');
 
-    // platforms = this.physics.add.sprite(0, 600, 'platform');
-    // platforms.scaleX = 3.5;
-    // platforms.scaleY = 0.5;
-    // platforms.angle = 2;
-    // platforms.setCollideWorldBounds = true;
+    diamond = this.physics.add.staticSprite(10, 50,'diamond').setScale(0.7,0.7);
 
+    invisible = this.physics.add.staticSprite(0, 590,'invisible').setScale(1,1);
+
+
+    // Adding platforms
     platforms = this.physics.add.staticGroup();
 
-    // platforms.create(400, 568, 'platform').setScale(2,0.5).refreshBody();
-    platform = platforms.create(0, 600, 'platform').setScale(4,0.5).refreshBody();
+    platform = platforms.create(0, 590, 'platform').setScale(4,0.5).refreshBody();
     // platform.angle = -1;
 
     platform = platforms.create(0, 500, 'platform').setScale(3.5,0.5).refreshBody();
@@ -61,11 +62,46 @@ function create(){
     platform = platforms.create(300, 100, 'platform').setScale(2,0.5).refreshBody();
     // platform.angle = 2;
 
+
+    // create rock sprite
+
+        // setInterval(()=>{
+
+        // rock = this.physics.add.sprite(50, 50,'rock').setScale(0.15, 0.15);
+        // rock.setCollideWorldBounds(true);
+        // rock.body.setGravityY(100);
+        // rock.setBounce( 0.5);
+        // rock.body.setVelocity(100);
+
+        //  }, 3000);
+
+        rock = this.physics.add.sprite(50, 50,'rock').setScale(0.15, 0.15);
+        rock.setCollideWorldBounds(true);
+        rock.body.setGravityY(100);
+        rock.setBounce( 0.5);
+        rock.body.setVelocity(100);
+        rock.body.Depth = 1;
+        random_seconds = Math.floor(Math.random() * (3000 - 2000 + 1)) + 2000;
+
+        function myfunction(){
+
+        rock = this.physics.add.sprite(50, 50,'rock').setScale(0.15, 0.15);
+        rock.setCollideWorldBounds(true);
+        rock.body.setGravityY(100);
+        rock.setBounce( 0.5);
+        rock.body.setVelocity(100);
+        random_seconds = Math.floor(Math.random() * (3000 - 2000 + 1)) + 2000;
+        }
+
+        add_rocks = this.time.addEvent({ delay: random_seconds, callback: myfunction, callbackScope: this, loop: true });
+
+
+    // Adding the ladders
     ladders = this.physics.add.staticGroup();
     // ladders.enableBody = true;
 
     // 1st column
-    ladders.create(650, 555, 'ladder').setScale(0.25,0.27).refreshBody();
+    ladders.create(650, 550, 'ladder').setScale(0.25,0.34).refreshBody();
 
     // 2nd column
     ladders.create(150, 450, 'ladder').setScale(0.25,0.34);
@@ -87,10 +123,11 @@ function create(){
 
 
     // create the player sprite
-    player = this.physics.add.sprite(80,400,'player');
+    player = this.physics.add.sprite(80,550,'player');
     player.setBounce(0.2);
     player.setCollideWorldBounds(true);
 
+    // creating frames tho handle the player in a certain direction
     this.anims.create({
         key: 'left',
         frames: this.anims.generateFrameNumbers('player', { start: 0, end: 3 }),
@@ -111,30 +148,25 @@ function create(){
         repeat: -1
     });
 
-    // create rock sprite
-    rock = this.physics.add.sprite(50, 50,'rock').setScale(0.15, 0.15);
-    rock.setCollideWorldBounds(true);
-    rock.body.setGravityY(100);
-    rock.body.setVelocity(80, 200)
-    rock.setBounce(0.5, 0.5);
 
+    // Adding text for the score
     score = 0;
     scoreText = this.add.text(16,16,'Score: ' + score, {fontSize: '32px', fill: '#000'});
-    status_text = this.add.text(300,300, '' , {fontSize: '50px', fill: '#FF0000'});
+    // Adding text when one wins the game
+    win_text = this.add.text(200,300, '' , {fontSize: '100px', fill: '#953553'});
+    // Adding text when one loses the game
+    lose_text = this.add.text(300,300, '' , {fontSize: '50px', fill: '#FF0000'});
+    // Initializing keyboard inputs - to control the player
     cursors = this.input.keyboard.createCursorKeys();
 }
 
 function update(){
-    // console.log('update function running');
-    // this.physics.add.collider(rock, platforms);
-    // this.physics.add.collider(player, platforms);
     this.physics.add.collider(player, platforms,null ,checkUp.bind(this));
-    // this.physics.add.overlap(player, rock,null ,overlap_rock, null, this);
     this.physics.add.collider(rock, platforms);
     this.physics.add.collider(player, rock, hitRock, null, this);
+    this.physics.add.overlap(rock, invisible,hitInvisible, null, this);
+    this.physics.add.overlap(player, diamond, collectDiamond, null, this);
     this.physics.add.overlap(player, ladders);
-    // rock.angle += 0.5;
-    // this.player.velocity.x = 0;
 
     function checkLadder()
     {
@@ -156,18 +188,23 @@ function update(){
             return false
         }
     }
+
+    // Setting up player direction if the left key if pressed
     if (cursors.left.isDown)
     {
         player.setVelocityX(-160);
 
         player.anims.play('left', true);
     }
+    // Setting up player direction if the right key if pressed
     else if (cursors.right.isDown)
     {
         player.setVelocityX(160);
 
         player.anims.play('right', true);
     }
+
+    // Setting up player direction if no key is pressed
     else
     {
         player.setVelocityX(0);
@@ -175,7 +212,9 @@ function update(){
         player.anims.play('turn');
     }
 
+    // Enabling a player to jump when touching the floor of a platform
     if (cursors.up.isDown && player.body.touching.down && player.body.onFloor())
+        // player.body.touching.down
     {
         player.setVelocityY(-200);
         player.canDoubleJump = false;
@@ -191,30 +230,61 @@ function update(){
         }
     }
 
+    // Setting up the direction of the rock
+    if (rock.body.velocity.x == 0) {
+     rock.setVelocityX(500)
+
+    }
+    else if (rock.body.velocity.x < 0) {
+     rock.setVelocityX(-500)
+
+    }
+    else if (rock.body.velocity.x > 0) {
+        rock.setVelocityX(500)
+
+    }
+
 }
 
-//     function overlap_rock (player, rock)
-// {
-//     rock.disableBody(true, true);
-//     score += 10;
-//     scoreText.setText('Score: ' + score);
-// }
-
+// This function runs when a player collides with a rock - the game ends
 function hitRock (player, rock)
 {
+
     this.physics.pause();
 
     player.setTint(0xff0000);
 
     player.anims.play('turn');
 
-    status_text.setText('You lose');
+    lose_text.setText('You lose');
 
     gameOver = true;
 }
 
-    // setTimeout(rock_init()
-    // {
+// This function runs when a player collides with the diamond at the top left corner - He/she wins
+function collectDiamond(player, diamond)
+{
+    diamond.disableBody(true, true);
 
-    // }, 2000 );
-    // // rock_init();
+    this.physics.pause();
+
+    player.setTint(0x8EF488);
+
+    player.anims.play('turn');
+
+    win_text.setText('You win');
+
+    gameOver = true;
+}
+
+// This function runs when a rock reaches the bottom left corner - Its disabled
+function hitInvisible (rock, invisible)
+{
+
+    rock.disableBody(true, true);
+
+}
+
+
+
+
