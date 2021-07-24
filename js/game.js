@@ -14,7 +14,7 @@ var config = {
         update, update
     }
 };
-let rocks;
+
 
 game = new Phaser.Game(config);
 
@@ -42,84 +42,83 @@ function create(){
 
 
     // Adding platforms
-    platforms = this.physics.add.staticGroup();
+    // Setting up platform positions
+    var platformPositions = [
+    { x:0, y:590 },
+    { x:0, y:500 },
+    { x:500, y:400 },
+    { x:300, y:300 },
+    { x:500, y:200 },
+    { x:300, y:100 }
+    ];
+    // Setting platform scale
+    var platformScale = [
+    { x:4, y:0.5 },
+    { x:3.5, y:0.5 },
+    { x:2, y:0.5 },
+    { x:2, y:0.5 },
+    { x:2, y:0.5 },
+    { x:2, y:0.5 }
+    ];
+    // Adding a platform group
 
-    platform = platforms.create(0, 590, 'platform').setScale(4,0.5).refreshBody();
-    // platform.angle = -1;
+    platformGroup = this.physics.add.staticGroup();
 
-    platform = platforms.create(0, 500, 'platform').setScale(3.5,0.5).refreshBody();
-    // platform.angle = 2;
+    // Looping through the platform group and adding the child elements
 
-    platform = platforms.create(500, 400, 'platform').setScale(2,0.5).refreshBody();
-    // platform.angle = -2;
+    for (var i = 0; i < platformPositions.length; i++) {
+        var platform = platformGroup.create(platformPositions[i].x, platformPositions[i].y, 'platform').setScale(platformScale[i].x,platformScale[i].y).refreshBody();
+    }
+    // Setting up rock positions
 
-    platform = platforms.create(300, 300, 'platform').setScale(2,0.5).refreshBody();
-    // platform.angle = 2;
+    var rockPositions = [
+    { x:50, y:80 },
+    { x:500, y:80 },
+    { x:200, y:80 },
+    { x:300, y:80 },
+    { x:400, y:180 },
+    { x:550, y:180 },
+    { x:750, y:180 },
+    { x:50, y:280 },
+    { x:300, y:280 },
+    { x:600, y:280 },
+    { x:400, y:380 },
+    { x:550, y:380 },
+    { x:50, y:480 },
+    { x:300, y:480 }
+    ];
+    // Adding a rock group
 
-    platform = platforms.create(500, 200, 'platform').setScale(2,0.5).refreshBody();
-    // platform.angle = -2;
+    rockGroup = this.physics.add.group();
 
-    platform = platforms.create(300, 100, 'platform').setScale(2,0.5).refreshBody();
-    // platform.angle = 2;
+    // Looping through the rock group and adding the child elements
 
-
-    // create rock sprite
-
-        // setInterval(()=>{
-
-        // rock = this.physics.add.sprite(50, 50,'rock').setScale(0.15, 0.15);
-        // rock.setCollideWorldBounds(true);
-        // rock.body.setGravityY(100);
-        // rock.setBounce( 0.5);
-        // rock.body.setVelocity(100);
-
-        //  }, 3000);
-
-        rock = this.physics.add.sprite(50, 50,'rock').setScale(0.15, 0.15);
+    for (var i = 0; i < rockPositions.length; i++) {
+        var rock = rockGroup.create(rockPositions[i].x, rockPositions[i].y, 'rock').setScale(0.15, 0.15);
         rock.setCollideWorldBounds(true);
-        rock.body.setGravityY(100);
         rock.setBounce( 0.5);
-        rock.body.setVelocity(100);
-        rock.body.Depth = 1;
-        random_seconds = Math.floor(Math.random() * (3000 - 2000 + 1)) + 2000;
+        rock.Depth = 1;
+    }
 
-        function myfunction(){
+    var ladderPositions = [
+    { x:650, y:550 },
+    { x:150, y:450 },
+    { x:450, y:454 },
+    { x:650, y:350 },
+    { x:400, y:353 },
+    { x:150, y:250 },
+    { x:350, y:253 },
+    { x:650, y:155 }
+    ];
 
-        rock = this.physics.add.sprite(50, 50,'rock').setScale(0.15, 0.15);
-        rock.setCollideWorldBounds(true);
-        rock.body.setGravityY(100);
-        rock.setBounce( 0.5);
-        rock.body.setVelocity(100);
-        random_seconds = Math.floor(Math.random() * (3000 - 2000 + 1)) + 2000;
-        }
+    // Adding ladders
+    ladderGroup = this.physics.add.staticGroup();
 
-        add_rocks = this.time.addEvent({ delay: random_seconds, callback: myfunction, callbackScope: this, loop: true });
+    // Looping through the ladder group and adding the child elements
 
-
-    // Adding the ladders
-    ladders = this.physics.add.staticGroup();
-    // ladders.enableBody = true;
-
-    // 1st column
-    ladders.create(650, 550, 'ladder').setScale(0.25,0.34).refreshBody();
-
-    // 2nd column
-    ladders.create(150, 450, 'ladder').setScale(0.25,0.34);
-
-    ladders.create(450, 454, 'ladder').setScale(0.25,0.4);
-
-    // 3rd column
-    ladders.create(650, 350, 'ladder').setScale(0.25,0.34);
-
-    ladders.create(400, 353, 'ladder').setScale(0.25,0.38);
-
-    //4th column
-    ladders.create(150, 250, 'ladder').setScale(0.25,0.34);
-
-    ladders.create(350, 253, 'ladder').setScale(0.25,0.38);
-
-    // 5th column
-    ladders.create(650, 155, 'ladder').setScale(0.25,0.34);
+    for (var i = 0; i < ladderPositions.length; i++) {
+    var ladder = ladderGroup.create(ladderPositions[i].x, ladderPositions[i].y, 'ladder').setScale(0.15, 0.15).setScale(0.25,0.34).refreshBody();
+    }
 
 
     // create the player sprite
@@ -127,7 +126,7 @@ function create(){
     player.setBounce(0.2);
     player.setCollideWorldBounds(true);
 
-    // creating frames tho handle the player in a certain direction
+    // creating frames to handle the player in a certain direction
     this.anims.create({
         key: 'left',
         frames: this.anims.generateFrameNumbers('player', { start: 0, end: 3 }),
@@ -161,33 +160,27 @@ function create(){
 }
 
 function update(){
-    this.physics.add.collider(player, platforms,null ,checkUp.bind(this));
-    this.physics.add.collider(rock, platforms);
-    this.physics.add.collider(player, rock, hitRock, null, this);
-    this.physics.add.overlap(rock, invisible,hitInvisible, null, this);
+    // Adding colliders
+    this.physics.add.collider(player, platformGroup);
+    this.physics.add.collider(rockGroup, platformGroup);
+    this.physics.add.collider(player, rockGroup, hitRock, null, this);
+    this.physics.add.overlap(rockGroup, invisible, hitInvisible, null, this);
     this.physics.add.overlap(player, diamond, collectDiamond, null, this);
-    this.physics.add.overlap(player, ladders);
+    this.physics.add.overlap(player, ladderGroup);
 
-    function checkLadder()
-    {
-        this.onLadder=false;
-        ladders.children.iterate(function(child)
-        {
-            if (!child.body.touching.none)
-            {
-                this.onLadder=true;
-            }
-        }.bind(this));
+    // Setting up the velocity and direction of each rock
+    rockGroup.getChildren().forEach(function(rock) {
+        if (rock.body.velocity.x >= 0) {
+            rock.setVelocityX(100);
+            rock.angle += 1;
 
-    }
-
-
-    function checkUp(){
-        if (this.onLadder==true && player.velocity.y < 0)
-        {
-            return false
         }
-    }
+        else if (rock.body.velocity.x = -1) {
+            rock.setVelocityX(-100)
+            rock.angle += -1;
+
+        }
+    }, this);
 
     // Setting up player direction if the left key if pressed
     if (cursors.left.isDown)
@@ -214,40 +207,15 @@ function update(){
 
     // Enabling a player to jump when touching the floor of a platform
     if (cursors.up.isDown && player.body.touching.down && player.body.onFloor())
-        // player.body.touching.down
     {
         player.setVelocityY(-200);
         player.canDoubleJump = false;
     }
 
-
-    if (cursors.up.isDown)
-    {
-        checkLadder();
-        if (this.onLadder==true)
-        {
-            player.setVelocityY(-50);
-        }
-    }
-
-    // Setting up the direction of the rock
-    if (rock.body.velocity.x == 0) {
-     rock.setVelocityX(500)
-
-    }
-    else if (rock.body.velocity.x < 0) {
-     rock.setVelocityX(-500)
-
-    }
-    else if (rock.body.velocity.x > 0) {
-        rock.setVelocityX(500)
-
-    }
-
 }
 
 // This function runs when a player collides with a rock - the game ends
-function hitRock (player, rock)
+function hitRock (player, rocks)
 {
 
     this.physics.pause();
@@ -278,12 +246,15 @@ function collectDiamond(player, diamond)
 }
 
 // This function runs when a rock reaches the bottom left corner - Its disabled
-function hitInvisible (rock, invisible)
+function hitInvisible (rocks, invisible)
 {
 
-    rock.disableBody(true, true);
+    rocks.disableBody(true, true);
 
 }
+
+
+
 
 
 
