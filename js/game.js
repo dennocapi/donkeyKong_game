@@ -69,24 +69,22 @@ function create(){
     for (var i = 0; i < platformPositions.length; i++) {
         var platform = platformGroup.create(platformPositions[i].x, platformPositions[i].y, 'platform').setScale(platformScale[i].x,platformScale[i].y).refreshBody();
     }
+
     // Setting up rock positions
 
     var rockPositions = [
-    { x:50, y:80 },
     { x:500, y:80 },
     { x:200, y:80 },
     { x:300, y:80 },
-    { x:400, y:180 },
-    { x:550, y:180 },
+    { x:600, y:180 },
     { x:750, y:180 },
-    { x:50, y:280 },
+    { x:100, y:280 },
     { x:300, y:280 },
-    { x:600, y:280 },
     { x:400, y:380 },
     { x:550, y:380 },
-    { x:50, y:480 },
     { x:300, y:480 }
     ];
+
     // Adding a rock group
 
     rockGroup = this.physics.add.group();
@@ -94,12 +92,24 @@ function create(){
     // Looping through the rock group and adding the child elements
 
     for (var i = 0; i < rockPositions.length; i++) {
-        var rock = rockGroup.create(rockPositions[i].x, rockPositions[i].y, 'rock').setScale(0.15, 0.15);
+        var rock = rockGroup.create(rockPositions[i].x, rockPositions[i].y, 'rock').setScale(0.13, 0.13);
         rock.setCollideWorldBounds(true);
         rock.setBounce( 0.5);
         rock.Depth = 1;
     }
 
+    // Adding a rock sprite
+    function addRockSprite(){
+        var rock = rockGroup.create(50, 80, 'rock').setScale(0.13, 0.13);
+        rock.setCollideWorldBounds(true);
+        rock.setBounce( 0.5);
+        rock.Depth = 1;
+    }
+
+    //Adding the rock sprite at time intervals
+    setInterval(addRockSprite, 2000);
+
+    // Initializing ladder positions
     var ladderPositions = [
     { x:650, y:550 },
     { x:150, y:450 },
@@ -160,13 +170,42 @@ function create(){
 }
 
 function update(){
+
+    // To ignore collision if the player is on ladder
+
+    const checkUp = () =>
+    {
+        if (this.onLadder == true && player.body.velocity.y<0)
+        {
+            return false;
+        }
+        return true
+    }
+
     // Adding colliders
-    this.physics.add.collider(player, platformGroup);
+    this.physics.add.collider(player, platformGroup, null, checkUp.bind(this));
     this.physics.add.collider(rockGroup, platformGroup);
     this.physics.add.collider(player, rockGroup, hitRock, null, this);
-    this.physics.add.overlap(rockGroup, invisible, hitInvisible, null, this);
+    this.physics.add.overlap(rockGroup, invisible, null,hitInvisible);
     this.physics.add.overlap(player, diamond, collectDiamond, null, this);
     this.physics.add.overlap(player, ladderGroup);
+    this.physics.add.overlap(player, rockGroup);
+
+
+
+
+    const checkLadder = () =>
+    {
+        this.onLadder = false;
+        ladderGroup.children.iterate(function(child)
+        {
+            if (!child.body.touching.none)
+            {
+                this.onLadder=true;
+            }
+        }.bind(this));
+
+    }
 
     // Setting up the velocity and direction of each rock
     rockGroup.getChildren().forEach(function(rock) {
@@ -196,6 +235,20 @@ function update(){
 
         player.anims.play('right', true);
     }
+    // Setting up player direction if the right key if pressed
+    else if (cursors.down.isDown)
+    {
+        checkLadder();
+
+        if (this.onLadder==true)
+        {
+            player.setVelocityY(160);
+        }
+
+        player.setVelocityY(160);
+
+        player.anims.play('turn', true);
+    }
 
     // Setting up player direction if no key is pressed
     else
@@ -208,15 +261,37 @@ function update(){
     // Enabling a player to jump when touching the floor of a platform
     if (cursors.up.isDown && player.body.touching.down && player.body.onFloor())
     {
-        player.setVelocityY(-200);
-        player.canDoubleJump = false;
+        checkLadder();
+        // Direction of the player if on ladder
+        if (this.onLadder==true)
+        {
+            player.setGravityY(0);
+            player.setVelocityY(-120);
+        }
+        // Player properties if not on ladder
+        else{
+            player.setVelocityY(-120);
+            player.canDoubleJump = false;
+        }
     }
 
+    // Pause a game
+    if(cursors.space.isDown)
+    {
+        this.physics.pause();
+    }
+    if(cursors.shift.isDown)
+    {
+        this.physics.resume();
+    }
 }
 
 // This function runs when a player collides with a rock - the game ends
-function hitRock (player, rocks)
+function hitRock (player, rock)
 {
+    this.registry.destroy();
+
+    this.events.off();
 
     this.physics.pause();
 
@@ -224,8 +299,10 @@ function hitRock (player, rocks)
 
     player.anims.play('turn');
 
-    lose_text.setText('You lose');
-
+    // lose_text.setText('You lose');
+    // for (var i = 0; i > 3; i--) {
+    //   this.scene.restart();
+    // }
     gameOver = true;
 }
 
@@ -246,12 +323,15 @@ function collectDiamond(player, diamond)
 }
 
 // This function runs when a rock reaches the bottom left corner - Its disabled
-function hitInvisible (rocks, invisible)
+function hitInvisible (invisible, rock)
 {
-
-    rocks.disableBody(true, true);
-
+        rock.disableBody(true, true);
+        score += 100;
+        scoreText.setText('Score: ' + score);
 }
+
+
+
 
 
 
