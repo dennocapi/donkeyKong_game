@@ -20,9 +20,9 @@ game = new Phaser.Game(config);
 
 function preload(){
     // Load images
-    this.load.image('background','assets/sky.png');
+    this.load.image('background','assets/bg2.jpg');
     this.load.image('platform','assets/platform.png');
-    this.load.image('rock','assets/rock.png');
+    this.load.image('rock','assets/fireBall.jpg');
     this.load.image('ladder','assets/ladder.png');
     this.load.image('diamond','assets/diamond.png');
     this.load.image('invisible','assets/invisible.PNG');
@@ -34,11 +34,10 @@ function create(){
     let game_width = this.sys.game.config.width;
     let game_height = this.sys.game.config.height;
 
-    this.bg = this.add.sprite(game_width/2,game_height/2,'background');
-
-    diamond = this.physics.add.staticSprite(10, 50,'diamond').setScale(0.7,0.7);
-
     invisible = this.physics.add.staticSprite(0, 590,'invisible').setScale(1,1);
+    this.bg = this.add.sprite(game_width/2,game_height/2,'background');
+    // Adds the diamond which a player picks and wins the game
+    diamond = this.physics.add.staticSprite(10, 50,'diamond').setScale(0.7,0.7);
 
 
     // Adding platforms
@@ -53,12 +52,12 @@ function create(){
     ];
     // Setting platform scale
     var platformScale = [
-    { x:4, y:0.5 },
-    { x:3.5, y:0.5 },
-    { x:2, y:0.5 },
-    { x:2, y:0.5 },
-    { x:2, y:0.5 },
-    { x:2, y:0.5 }
+    { x:44, y:0.5 },
+    { x:3.9, y:0.5 },
+    { x:2.4, y:0.5 },
+    { x:2.4, y:0.5 },
+    { x:2.4, y:0.5 },
+    { x:2.4, y:0.5 }
     ];
     // Adding a platform group
 
@@ -92,7 +91,7 @@ function create(){
     // Looping through the rock group and adding the child elements
 
     for (var i = 0; i < rockPositions.length; i++) {
-        var rock = rockGroup.create(rockPositions[i].x, rockPositions[i].y, 'rock').setScale(0.13, 0.13);
+        var rock = rockGroup.create(rockPositions[i].x, rockPositions[i].y, 'rock').setScale(0.02, 0.02);
         rock.setCollideWorldBounds(true);
         rock.setBounce( 0.5);
         rock.Depth = 1;
@@ -100,7 +99,7 @@ function create(){
 
     // Adding a rock sprite
     function addRockSprite(){
-        var rock = rockGroup.create(50, 80, 'rock').setScale(0.13, 0.13);
+        var rock = rockGroup.create(50, 80, 'rock').setScale(0.02, 0.02);
         rock.setCollideWorldBounds(true);
         rock.setBounce( 0.5);
         rock.Depth = 1;
@@ -160,11 +159,9 @@ function create(){
 
     // Adding text for the score
     score = 0;
-    scoreText = this.add.text(16,16,'Score: ' + score, {fontSize: '32px', fill: '#000'});
-    // Adding text when one wins the game
-    win_text = this.add.text(200,300, '' , {fontSize: '100px', fill: '#953553'});
-    // Adding text when one loses the game
-    lose_text = this.add.text(300,300, '' , {fontSize: '50px', fill: '#FF0000'});
+    scoreText = this.add.text(80,10,'Score: ' + score, {fontSize: '32px', fill: '#FFFFFF'});
+    // Adding text when one wins or loses the game
+    text = this.add.text(250,250, '' , {fontSize: '50px', fill: '#FFFFFF'});
     // Initializing keyboard inputs - to control the player
     cursors = this.input.keyboard.createCursorKeys();
 }
@@ -280,6 +277,8 @@ function update(){
     {
         this.physics.pause();
     }
+
+    // Resuming the game
     if(cursors.shift.isDown)
     {
         this.physics.resume();
@@ -299,10 +298,8 @@ function hitRock (player, rock)
 
     player.anims.play('turn');
 
-    // lose_text.setText('You lose');
-    // for (var i = 0; i > 3; i--) {
-    //   this.scene.restart();
-    // }
+    text.setText('Game over');
+
     gameOver = true;
 }
 
@@ -317,7 +314,7 @@ function collectDiamond(player, diamond)
 
     player.anims.play('turn');
 
-    win_text.setText('You win');
+    text.setText('You win');
 
     gameOver = true;
 }
